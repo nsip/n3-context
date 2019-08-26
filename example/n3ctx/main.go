@@ -11,25 +11,77 @@ import (
 
 func main() {
 
-	cm := n3context.NewN3ContextManager()
-	c, err := cm.AddContext("mattf101", "context1")
+	// dataFile := "./sample_data/xapi/xapi.json"
+	dataFile := "./sample_data/sif/sif.json"
+
+	// create a new manager
+	cm1 := n3context.NewN3ContextManager()
+
+	// add a context
+	c1, err := cm1.AddContext("mattf101", "context1")
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	err = c.Activate()
+	// attach the context to the streaming server
+	// to recieve updates
+	err = c1.Activate()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	// send in some data, via the crdt layer
+	err = c1.PublishFromFile(dataFile)
+	if err != nil {
+		log.Fatal("PublishFromFile() Error: ", err)
+	}
+
+	// add another context
+	c2, err := cm1.AddContext("mattf202", "context1")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// attache the context to the streaming server
+	// to recieve updates
+	err = c2.Activate()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// send in some data, via the crdt layer
+	err = c2.PublishFromFile(dataFile)
+	if err != nil {
+		log.Fatal("PublishFromFile() Error: ", err)
+	}
 
 	// consume data for a time
 	// time.Sleep(time.Minute)
+	log.Println("...listening for updates")
 	time.Sleep(time.Second * 10)
 
-	// run a query
+	// shut down the contexts, but persist details
+	log.Println("Closing created contexts, and saving...")
+	err = cm1.Close(true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("...CM1 closed")
 
-	c.Close()
+	// create a new manager & load saved contexts
+	log.Println("Restoring saved contexts, and activating")
+	cm2 := n3context.NewN3ContextManager()
+	err = cm2.Restore()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// consume data for a time
+	// time.Sleep(time.Minute)
+	log.Println("...listening for updates")
+	time.Sleep(time.Second * 10)
+
+	log.Println("Closing created contexts, and saving...")
+	err = cm2.Close(true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("...CM2 closed")
 
 }

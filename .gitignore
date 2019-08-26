@@ -8,3 +8,7 @@ example/n3ctx/contexts/mattf101/context1/d6/MANIFEST
 *.sbf
 example/n3ctx/out.txt
 example/n3ctx/n3ctx
+example/n3ctx/contexts/contexts.json
+example/n3ctx/contexts/mattf202/context1/crdt/recv/MANIFEST
+example/n3ctx/contexts/mattf202/context1/crdt/send/MANIFEST
+example/n3ctx/contexts/mattf202/context1/d6/MANIFEST

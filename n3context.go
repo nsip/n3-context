@@ -2,6 +2,9 @@ package n3context
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"time"
 
 	crdt "github.com/nsip/n3-crdt"
@@ -48,45 +51,46 @@ func NewN3Context(userId string, contextName string) (*N3Context, error) {
 //
 func (n3c *N3Context) Activate() error {
 
-	defer timeTrack(time.Now(), "context Activate()")
-
 	iterator, err := n3c.crdtm.StartReceiver()
 	if err != nil {
 		return err
 	}
 
-	// go func() {
-	// err = n3c.db.IngestFromJSONChannel(iterator)
-	// if err != nil {
-	// 	log.Println("crdtm-db error:", err)
-	// }
-	// }()
-
-	// count := 0
-	// var buf bytes.Buffer
-	// for jsonBytes := range iterator {
-	// 	count++
-	// 	log.Println("recieived: ", count)
-	// 	buf.Write([]byte(`[`))
-	// 	buf.Write(jsonBytes)
-	// 	buf.Write([]byte(`]`))
-	// 	err = n3c.db.IngestFromReader(&buf)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	if count == 35200 {
-	// 		break
-	// 	}
-	// }
-
-	// return nil
 	go func() {
 		n3c.db.IngestFromJSONChannel(iterator)
 	}()
 
-	// return n3c.db.IngestFromJSONChannel(iterator)
 	return nil
 
+}
+
+//
+// send data into context via crdt manager from a file
+// expects payload to be array of json objects.
+//
+func (n3c *N3Context) PublishFromFile(fname string) error {
+	defer timeTrack(time.Now(), "PublishFromFile() "+fname)
+	return n3c.crdtm.SendFromFile(fname)
+}
+
+//
+// send data into context via crdt manager from an http request
+// expects payload to be array of json objects.
+//
+func (n3c *N3Context) PublishFromHTTPRequest(r *http.Request) error {
+	defer timeTrack(time.Now(), "PublishFromHTTPRequest() ")
+	return n3c.crdtm.SendFromHTTPRequest(r)
+}
+
+//
+// send data into the context, passes through
+// the crdt layer and into storage if the context is
+// activated, any reader can be used
+// but expects content to be array of json objects.
+//
+func (n3c *N3Context) Publish(r io.Reader) error {
+	defer timeTrack(time.Now(), "PublishFromReader() ")
+	return n3c.crdtm.SendFromReader(r)
 }
 
 //
@@ -94,6 +98,6 @@ func (n3c *N3Context) Activate() error {
 //
 func (n3c *N3Context) Close() {
 	n3c.crdtm.Close()
-	// time.Sleep(time.Second * 3)
 	n3c.db.Close()
+	log.Println("Context: " + n3c.Name + ":" + n3c.UserId + " closed.")
 }

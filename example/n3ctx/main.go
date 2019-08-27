@@ -72,6 +72,17 @@ func main() {
 		log.Fatal(err)
 	}
 
+	log.Println("...fetch context from manager")
+	c3, err := cm2.GetContext("mattf202", "context1")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// send in some data, via the crdt layer
+	err = c3.PublishFromFile(dataFile)
+	if err != nil {
+		log.Fatal("PublishFromFile() Error: ", err)
+	}
+
 	// consume data for a time
 	// time.Sleep(time.Minute)
 	log.Println("...listening for updates")

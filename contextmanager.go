@@ -158,6 +158,23 @@ func (n3cm *N3ContextManager) AddContext(userId string, contextName string) (*N3
 }
 
 //
+// retrieve a context from the manager
+//
+func (n3cm *N3ContextManager) GetContext(userId string, contextName string) (*N3Context, error) {
+
+	n3cm.Lock()
+	defer n3cm.Unlock()
+
+	key := N3ContextKey{Name: contextName, UserId: userId}
+	n3ctx, ok := n3cm.contexts[key]
+	if ok {
+		return n3ctx, nil
+	}
+	return nil, errors.New("could not find existing context for " + key.Name + ":" + key.UserId)
+
+}
+
+//
 // shuts down all active contexts
 //
 // will save context info to file for use with Restore()

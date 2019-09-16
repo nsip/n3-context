@@ -22,12 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// attach the context to the streaming server
-	// to recieve updates
-	err = c1.Activate()
-	if err != nil {
-		log.Fatal(err)
-	}
+
 	// send in some data, via the crdt layer
 	err = c1.PublishFromFile(dataFile)
 	if err != nil {
@@ -39,22 +34,23 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// attache the context to the streaming server
-	// to recieve updates
-	err = c2.Activate()
-	if err != nil {
-		log.Fatal(err)
-	}
+
 	// send in some data, via the crdt layer
 	err = c2.PublishFromFile(dataFile)
 	if err != nil {
 		log.Fatal("PublishFromFile() Error: ", err)
 	}
 
+	log.Println("...activating contexts")
+	err = cm1.ActivateAll()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// consume data for a time
-	// time.Sleep(time.Minute)
-	log.Println("...listening for updates")
-	time.Sleep(time.Second * 10)
+	log.Println("...CM1 listening for updates")
+	// time.Sleep(time.Second * 30)
+	time.Sleep(time.Minute)
 
 	// shut down the contexts, but persist details
 	log.Println("Closing created contexts, and saving...")
@@ -69,7 +65,7 @@ func main() {
 	cm2 := n3context.NewN3ContextManager()
 	err = cm2.Restore()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err) // set cm1.Close(false) to trigger this error
 	}
 
 	log.Println("...fetch context from manager")
@@ -84,9 +80,9 @@ func main() {
 	}
 
 	// consume data for a time
-	// time.Sleep(time.Minute)
-	log.Println("...listening for updates")
-	time.Sleep(time.Second * 10)
+	log.Println("...CM2 listening for updates")
+	// time.Sleep(time.Second * 30)
+	time.Sleep(time.Minute)
 
 	log.Println("Closing created contexts, and saving...")
 	err = cm2.Close(true)

@@ -12,3 +12,5 @@ example/n3ctx/contexts/contexts.json
 example/n3ctx/contexts/mattf202/context1/crdt/recv/MANIFEST
 example/n3ctx/contexts/mattf202/context1/crdt/send/MANIFEST
 example/n3ctx/contexts/mattf202/context1/d6/MANIFEST
+flow.txt
+example/n3ctx/results.json

@@ -16,6 +16,7 @@ import (
 // location to save & restore context information
 //
 var contextsFile = "./contexts/contexts.json"
+var ErrContextFileNotFound = errors.New("no previous contexts file found: " + contextsFile)
 
 type N3ContextKey struct {
 	Name, UserId string
@@ -42,6 +43,9 @@ func NewN3ContextManager() *N3ContextManager {
 // Loads details of contexts from file, and activates the
 // specified contexts
 //
+// returns ErrContextFileNotFound if state has not
+// previously been saved
+//
 func (n3cm *N3ContextManager) Restore() error {
 
 	defer timeTrack(time.Now(), "Restore()")
@@ -49,8 +53,7 @@ func (n3cm *N3ContextManager) Restore() error {
 	fname := contextsFile
 	ctxList, err := loadContexts(fname)
 	if err != nil {
-		errString := "cannot parse contexts from file: " + fname
-		return errors.Wrap(err, errString)
+		return ErrContextFileNotFound
 	}
 
 	for _, k := range ctxList {
@@ -78,7 +81,7 @@ func (n3cm *N3ContextManager) ActivateAll() error {
 		if err != nil {
 			return errors.Wrap(err, "unable to activate context: "+k.Name)
 		}
-		log.Println("context: ", k, " activated.")
+		// log.Println("context: ", k, " activated.")
 	}
 
 	return nil
@@ -181,12 +184,18 @@ func (n3cm *N3ContextManager) GetContext(userId string, contextName string) (*N3
 // if persist is true
 //
 func (n3cm *N3ContextManager) Close(persist bool) error {
-	for _, c := range n3cm.contexts {
+	keys := make([]N3ContextKey, 0)
+	for k, c := range n3cm.contexts {
 		c.Close()
+		keys = append(keys, k)
 	}
 	if persist {
 		return persistContexts(n3cm.contexts)
 	}
+	for _, k := range keys {
+		delete(n3cm.contexts, k)
+	}
+
 	return nil
 }
 

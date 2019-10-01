@@ -11,6 +11,8 @@ import (
 
 	crdt "github.com/nsip/n3-crdt"
 	deep6 "github.com/nsip/n3-deep6"
+	n3gql "github.com/nsip/n3-gql"
+	graphql "github.com/playlyfe/go-graphql"
 )
 
 type N3Context struct {
@@ -18,6 +20,8 @@ type N3Context struct {
 	UserId   string
 	db       *deep6.Deep6DB
 	crdtm    *crdt.CRDTManager
+	gqlm     *n3gql.GQLManager
+	executor *graphql.Executor
 	quitChan chan struct{}
 }
 
@@ -38,12 +42,16 @@ func NewN3Context(userId string, contextName string) (*N3Context, error) {
 	}
 	crdtm.AuditLevel = "none"
 
+	// create the gql schema builder
+	gqlm := n3gql.NewGQLManager(userId, contextName, d6db)
+
 	// return the built context
 	return &N3Context{
 		Name:     contextName,
 		UserId:   userId,
 		db:       d6db,
 		crdtm:    crdtm,
+		gqlm:     gqlm,
 		quitChan: make(chan struct{}),
 	}, nil
 
@@ -51,31 +59,25 @@ func NewN3Context(userId string, contextName string) (*N3Context, error) {
 
 //
 // connects the crdtm to the streaming service
-// and pipes received data into the d6 db
+// and pipes received data into the d6 db, and
+// gql schema builder
 //
 func (n3c *N3Context) Activate() error {
-
-	// start the stream listener for this context
-	iterator, err := n3c.crdtm.StartReceiver()
-	if err != nil {
-		return err
-	}
 
 	// periodically attach the db to the stream, store
 	// messages while they are being produced
 	// will time out when reciever closes iterator when no new messages
-	// received, currently waits for 2 seconds
+	// received, currently waits for 2 seconds of inactivity
 	go func() {
 		var wg sync.WaitGroup
 		for {
 			log.Println("activating context: ", n3c.UserId, n3c.Name)
 			wg.Add(1)
 			go func() {
-				err := n3c.db.IngestFromJSONChannel(iterator)
+				err := runActivation(n3c.db, n3c.crdtm, n3c.gqlm)
 				if err != nil {
-					log.Println("error streaming to db, activate()")
+					log.Println("error n3context.Activate():", err)
 				}
-				log.Println("...iterator closed")
 				wg.Done()
 				return
 			}()
@@ -85,17 +87,12 @@ func (n3c *N3Context) Activate() error {
 			runtime.GC() // force mem reclaim
 			time.Sleep(10 * time.Second)
 
+			// listen for n3context shutdown
 			select {
 			case <-n3c.quitChan:
 				// log.Println("closing worker goroutine")
 				return
 			default:
-				var reconErr error
-				iterator, reconErr = n3c.crdtm.StartReceiver()
-				if reconErr != nil {
-					// return err
-					log.Println("error restarting context connection:", reconErr)
-				}
 			}
 
 		}
@@ -138,11 +135,21 @@ func (n3c *N3Context) Publish(r io.Reader) error {
 //
 // simplified version of query engine for demo
 //
+// TODO: remove in favour of GQLQuery
+//
 func (n3c *N3Context) Query(startid string,
 	traversal deep6.Traversal,
 	filter deep6.FilterSpec) (map[string][]map[string]interface{}, error) {
 	return n3c.db.TraversalWithId(startid, traversal, filter)
 
+}
+
+//
+// passes the received query into the gql manager for resolution
+//
+func (n3c *N3Context) GQLQuery(query string, vars map[string]interface{}) (map[string]interface{}, error) {
+
+	return n3c.gqlm.Query(query, vars)
 }
 
 //
@@ -153,5 +160,6 @@ func (n3c *N3Context) Close() {
 	time.Sleep(time.Second * 5) // give time for db to drain
 	n3c.crdtm.Close()
 	n3c.db.Close()
+	n3c.gqlm.Close()
 	log.Println("Context: " + n3c.Name + ":" + n3c.UserId + " closed.")
 }

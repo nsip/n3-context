@@ -35,7 +35,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// send in some data, via the crdt layer
+	// send in some data, via the crdt layer from another user
 	err = c2.PublishFromFile(dataFile)
 	if err != nil {
 		log.Fatal("PublishFromFile() Error: ", err)
@@ -81,8 +81,8 @@ func main() {
 
 	// consume data for a time
 	log.Println("...CM2 listening for updates")
-	// time.Sleep(time.Second * 30)
-	time.Sleep(time.Minute)
+	time.Sleep(time.Second * 30)
+	// time.Sleep(time.Minute)
 
 	log.Println("Closing created contexts, and saving...")
 	err = cm2.Close(true)

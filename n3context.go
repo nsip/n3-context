@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
+
 	crdt "github.com/nsip/n3-crdt"
 	deep6 "github.com/nsip/n3-deep6"
 	n3gql "github.com/nsip/n3-gql"
@@ -118,7 +120,12 @@ func (n3c *N3Context) PublishFromFile(fname string) error {
 //
 func (n3c *N3Context) PublishFromHTTPRequest(r *http.Request) error {
 	defer timeTrack(time.Now(), "PublishFromHTTPRequest() ")
-	return n3c.crdtm.SendFromHTTPRequest(r)
+	err := n3c.crdtm.SendFromHTTPRequest(r)
+	if err != nil {
+		return errors.Wrap(err, "(n3context.PublishFromHTTPRequest) unknown:")
+	}
+	return err;
+
 }
 
 //

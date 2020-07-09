@@ -71,7 +71,7 @@ func (n3c *N3Context) Activate() error {
 	go func() {
 		var wg sync.WaitGroup
 		for {
-			log.Println("activating context: ", n3c.UserId, n3c.Name)
+			// log.Println("activating context: ", n3c.UserId, n3c.Name)
 			wg.Add(1)
 			go func() {
 				err := runActivation(n3c.db, n3c.crdtm, n3c.gqlm)
@@ -83,9 +83,9 @@ func (n3c *N3Context) Activate() error {
 			}()
 			wg.Wait()
 
-			log.Println("\t ...restarting connection in 10 seconds...")
-			runtime.GC() // force mem reclaim
-			time.Sleep(10 * time.Second)
+			// log.Println("\t ...restarting connection in 2 seconds...")
+			runtime.GC()                // force mem reclaim
+			time.Sleep(2 * time.Second) // wait before reconnecting
 
 			// listen for n3context shutdown
 			select {

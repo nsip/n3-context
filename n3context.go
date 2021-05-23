@@ -6,14 +6,15 @@ import (
 	"log"
 	"net/http"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
-
+	csvtool "github.com/cdutwhu/csv-tool"
 	crdt "github.com/nsip/n3-crdt"
 	deep6 "github.com/nsip/n3-deep6"
 	n3gql "github.com/nsip/n3-gql"
+	"github.com/pkg/errors"
 	graphql "github.com/playlyfe/go-graphql"
 )
 
@@ -25,6 +26,55 @@ type N3Context struct {
 	gqlm     *n3gql.GQLManager
 	executor *graphql.Executor
 	quitChan chan struct{}
+}
+
+func AddTempContextConfigFromCSV(csvName, csvStr string) (string, error) {
+
+	var (
+		n3id          string
+		requiredPaths []string
+		links         []string
+		unique        []string
+	)
+
+	if strings.Trim(csvName, " \t") == "" {
+		return "", errors.New("csvName cannot be empty or blank")
+	}
+
+	sr := strings.NewReader(csvStr)
+	hdrs, _, err := csvtool.Info(sr)
+	if err != nil {
+		return "", err
+	}
+
+NEXTCOL:
+	for i := 0; i < len(hdrs); i++ {
+		attr, err := csvtool.ColAttr(sr, i)
+		if err != nil {
+			return "", err
+		}
+
+		switch {
+		case attr.IsUnique:
+			if n3id == "" {
+				n3id = attr.Header
+			}
+			unique = append(unique, attr.Header)
+			continue NEXTCOL
+
+		case attr.FilledAll:
+			requiredPaths = append(requiredPaths, attr.Header)
+			continue NEXTCOL
+		}
+	}
+
+	// here just guess links.
+	// should 'crdt.config' be modified if we know more about certain object classifier.
+	if len(requiredPaths) > 0 {
+		links = []string{requiredPaths[0]}
+	}
+
+	return crdt.AddTempClassifierConfig(csvName, n3id, requiredPaths, links, unique), nil
 }
 
 func NewN3Context(userId string, contextName string) (*N3Context, error) {
@@ -81,7 +131,6 @@ func (n3c *N3Context) Activate() error {
 					log.Println("error n3context.Activate():", err)
 				}
 				wg.Done()
-				return
 			}()
 			wg.Wait()
 
@@ -124,8 +173,7 @@ func (n3c *N3Context) PublishFromHTTPRequest(r *http.Request) error {
 	if err != nil {
 		return errors.Wrap(err, "(n3context.PublishFromHTTPRequest) unknown:")
 	}
-	return err;
-
+	return err
 }
 
 //

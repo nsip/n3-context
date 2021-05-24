@@ -33,7 +33,7 @@ type N3ContextManager struct {
 func NewN3ContextManager() *N3ContextManager {
 
 	newCm := &N3ContextManager{
-		contexts: make(map[N3ContextKey]*N3Context, 0),
+		contexts: make(map[N3ContextKey]*N3Context),
 	}
 
 	return newCm
@@ -118,7 +118,7 @@ func loadContexts(fname string) ([]N3ContextKey, error) {
 		ctxList = append(ctxList, nk)
 	}
 	// read closing bracket
-	t, err = dec.Token()
+	_, err = dec.Token()
 	if err != nil {
 		return nil, errors.Wrap(err, "unexpected end token, should be json array: ")
 	}
@@ -213,7 +213,7 @@ func persistContexts(c map[N3ContextKey]*N3Context) error {
 	defer f.Close()
 
 	ctxList := make([]N3ContextKey, 0)
-	for k, _ := range c { // we only need the keys
+	for k := range c { // we only need the keys
 		ctxList = append(ctxList, k)
 	}
 	enc := json.NewEncoder(f)

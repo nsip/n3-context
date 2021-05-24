@@ -42,8 +42,9 @@ github.com/dgraph-io/ristretto v0.0.3 h1:jh22xisGBjrEVnRZ1DVTpBVQm0Xndu8sMl0CWDz
 github.com/dgraph-io/ristretto v0.0.3/go.mod h1:KPxhHT9ZxKefz+PCeOGsrHpl1qZ7i70dGTu2u+Ahh6E=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
 github.com/digisan/gotk v0.0.13/go.mod h1:UQ8YCI0uvFowgH6q7cI6FGDy2vMLmCIgLb/E3HqkUU0=
-github.com/digisan/gotk v0.0.20 h1:KaftLtPh/NwCFI/33lPz3l5b+XJ9RQzHDM42ZllmWz0=
 github.com/digisan/gotk v0.0.20/go.mod h1:UQ8YCI0uvFowgH6q7cI6FGDy2vMLmCIgLb/E3HqkUU0=
+github.com/digisan/gotk v0.0.21 h1:lHF5EtCucIw2tx5El8wUIn65tHqfqSw02V5jln/KKBo=
+github.com/digisan/gotk v0.0.21/go.mod h1:UQ8YCI0uvFowgH6q7cI6FGDy2vMLmCIgLb/E3HqkUU0=
 github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4zYo=
 github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
@@ -127,6 +128,8 @@ github.com/nsip/n3-crdt v0.1.0/go.mod h1:bzzjtXj67M4MvNLju0l3zzZmEM8+tPAkue3EAqf
 github.com/nsip/n3-crdt v0.1.1/go.mod h1:bzzjtXj67M4MvNLju0l3zzZmEM8+tPAkue3EAqfFa3E=
 github.com/nsip/n3-crdt v0.1.3 h1:9D4JoE4IZN/zn4rEEUs7r2ja6jmTOL9rjk8rLW9hg6A=
 github.com/nsip/n3-crdt v0.1.3/go.mod h1:OevQs/UN0Eha9UX95yaXNX6RvWN+hOZqhB60H4AtdJA=
+github.com/nsip/n3-crdt v0.1.5 h1:egMFYbxhzWj7mnrXfVOa58WUi1MtuMfqwCeYWVcMvGo=
+github.com/nsip/n3-crdt v0.1.5/go.mod h1:OevQs/UN0Eha9UX95yaXNX6RvWN+hOZqhB60H4AtdJA=
 github.com/nsip/n3-deep6 v0.1.0/go.mod h1:Agzb2WRW/tCx/fVLPJ3SYzA2CUW9fZFUN4Muk4vgG4Q=
 github.com/nsip/n3-deep6 v0.1.1 h1:CZkDBNFC63vBXQR1/bBalPwwenU6iv1bScSEzJ76Cbs=
 github.com/nsip/n3-deep6 v0.1.1/go.mod h1:Agzb2WRW/tCx/fVLPJ3SYzA2CUW9fZFUN4Muk4vgG4Q=

@@ -77,6 +77,10 @@ NEXTCOL:
 	return crdt.AddTempClassifierConfig(csvName, n3id, requiredPaths, links, unique), nil
 }
 
+func ClearTempContextConfig() {
+	crdt.ClearTempClassifierConfig()
+}
+
 func NewN3Context(userId string, contextName string) (*N3Context, error) {
 
 	// create the d6 database

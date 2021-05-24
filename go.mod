@@ -8,10 +8,11 @@ require (
 	github.com/cdutwhu/gotil v0.1.31 // indirect
 	github.com/dgraph-io/badger v1.6.2 // indirect
 	github.com/dgraph-io/ristretto v0.0.3 // indirect
+	github.com/digisan/gotk v0.0.21 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/nats-io/jwt v1.2.2 // indirect
 	github.com/nats-io/stan.go v0.9.0 // indirect
-	github.com/nsip/n3-crdt v0.1.3
+	github.com/nsip/n3-crdt v0.1.5
 	github.com/nsip/n3-deep6 v0.1.1
 	github.com/nsip/n3-gql v0.1.1
 	github.com/pkg/errors v0.9.1
